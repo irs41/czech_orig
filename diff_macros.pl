@@ -43,22 +43,23 @@ print diff_macro_names(
 Extract macro names from the given DM file.
 
  Return  : % line_ref (of macro names)
- Args    : source file
+ Args    : source filename
 
 =cut
 
 sub get_macro_names {
   my $file = shift;
-  die qq/(!) "$file" doesn't exist\n/
+  die qq/(!) the file "$file" doesn't exist\n/
     unless -e $file;
 
   open my $in, '<:utf8', $file;
-  my %line_of = map {
-                #line number, macro name
-    /^_([^_]+)/ and ($., $1)
-  } <$in>;
+  my @lines; #(line number, macro name) pairs
+  /^_([^_]+)/
+    and push @lines, $., $1 while <$in>;
+  close $in;
 
-  return \%line_of;
+  # hash ref of the matched macro names
+  return { @lines };
 }
 
 =head2 diff_macro_names
@@ -66,17 +67,24 @@ sub get_macro_names {
 Tell which macro names differ between the two of files.
 
  Return  : sprintf text
- Args    : % line_ref1, line_ref2 (of macro names)
+ Args    : % line_ref_1, line_ref_2 (of macro names)
 
 =cut
 
 sub diff_macro_names {
   return -1 unless @_ == 2;
 
+  # line number (key), macro name (value)
+  my %file_1 = %{ shift @_ };
+  my %file_2 = %{ shift @_ };
 
-#sort keys 
+  # diff
+  my @diff_file_1 = map {grep !/$file_1{$_}/, values %file_2} sort keys %file_1;
+  my @diff_file_2 = map {grep !/$file_2{$_}/, values %file_1} sort keys %file_2;
 
-#return sprintf("%s",);
 
-#  $en{$macro} = grep /$macro/, @cz ? 1 : 0;
+  for my $line_num (sort keys @diff_file_1) {
+    
+  }
+  return (sprintf "%40s %40s" x @diff_file_2, @grep_2;
 }
