@@ -9,8 +9,7 @@ use utf8;
 #   — diff macro names
 
 # TODO
-# make it a more general use
-# [will be discussed in a next meeting]
+# make it more of a general use [will be discussed in a next meeting]
 
 
 ### ============== MAIN =============
@@ -24,7 +23,7 @@ USAGE
     diff_macros.pl FILE1.dm FILE2.dm
 
 DESCRIPTION
-    Compare macro names of the two DM files, i.e. outdated macros to be removed and missing ones to be added.
+    Check upon macro names between the two DM files
 
 EOL
 exit 2;
@@ -42,7 +41,7 @@ print diff_macro_names(
 
 Extract macro names from the given DM file.
 
- Return  : % line_ref (of macro names)
+ Return  : \@ macro names with empty lines
  Args    : source filename
 
 =cut
@@ -53,38 +52,36 @@ sub get_macro_names {
     unless -e $file;
 
   open my $in, '<:utf8', $file;
-  my @lines; #(line number, macro name) pairs
-  /^_([^_]+)/
-    and push @lines, $., $1 while <$in>;
+  
+  my @greped;
+  push @greped, (/^_([^_]+)/ ? $1 : '') while <$in>;
+  
   close $in;
 
-  # hash ref of the matched macro names
-  return { @lines };
+  # matched macro names and the empty lines between
+  return \@greped;
 }
 
 =head2 diff_macro_names
 
-Tell which macro names differ between the two of files.
+Tell which macro names don't compare.
 
  Return  : sprintf text
- Args    : % line_ref_1, line_ref_2 (of macro names)
+ Args    : \@ macro_names_1, \@ macro_names_2
 
 =cut
 
 sub diff_macro_names {
   return -1 unless @_ == 2;
 
-  # line number (key), macro name (value)
-  my %file_1 = %{ shift @_ };
-  my %file_2 = %{ shift @_ };
+  my @file_1 = @{ shift @_ };
+  my @file_2 = @{ shift @_ };
 
   # diff
-  my @diff_file_1 = map {grep !/$file_1{$_}/, values %file_2} sort keys %file_1;
-  my @diff_file_2 = map {grep !/$file_2{$_}/, values %file_1} sort keys %file_2;
+  @macros_1 = map {grep /$_/} @file_1;
 
 
-  for my $line_num (sort keys @diff_file_1) {
-    
-  }
+  @macro_names_1 = map {grep !/$file_1{$_}/, values %file_2} sort keys %file_1;
+
   return (sprintf "%40s %40s" x @diff_file_2, @grep_2;
 }
