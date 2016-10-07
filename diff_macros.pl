@@ -9,7 +9,7 @@ use utf8;
 #   — diff macro names
 
 # TODO
-# make it more of a general use [will be discussed in a next meeting]
+# will be discussed in a next meeting
 
 
 ### ============== MAIN =============
@@ -29,9 +29,17 @@ EOL
 exit 2;
 }
 
-print diff_macro_names(
-  get_macro_names(shift), # FILE1.dm
-  get_macro_names(shift)  # FILE2.dm
+my $col = 40; # column width
+my $file1 = shift;
+my $file2 = shift;
+
+print
+  sprintf(
+    "%s$col || %s$col\n", $file1, $file2
+  ),
+  diff_macro_names(
+    get_macro_names($file1),
+    get_macro_names($file2)
 );
 ### ============ END ================
 
@@ -39,49 +47,59 @@ print diff_macro_names(
 
 =head2 get_macro_names
 
-Extract macro names from the given DM file.
-
- Return  : \@ macro names with empty lines
- Args    : source filename
+Take macro names from the given DM file
 
 =cut
 
 sub get_macro_names {
   my $file = shift;
-  die qq/(!) the file "$file" doesn't exist\n/
+  die qq/(!) file "$file" doesn't exist\n/
     unless -e $file;
 
   open my $in, '<:utf8', $file;
   
-  my @greped;
-  push @greped, (/^_([^_]+)/ ? $1 : '') while <$in>;
+  my @grep;
+  push @grep, (/^_([^_]+)/ ? $1 : undef) while <$in>;
   
   close $in;
 
-  # matched macro names and the empty lines between
-  return \@greped;
+  # matched macro names keeping the lines
+  return \@grep;
 }
 
 =head2 diff_macro_names
 
-Tell which macro names don't compare.
-
- Return  : sprintf text
- Args    : \@ macro_names_1, \@ macro_names_2
+Tell which macro names don't compare
 
 =cut
 
 sub diff_macro_names {
   return -1 unless @_ == 2;
 
-  my @file_1 = @{ shift @_ };
-  my @file_2 = @{ shift @_ };
+  my @macros1 = @$_[0];
+  my @macros2 = @$_[1];
 
-  # diff
-  @macros_1 = map {grep /$_/} @file_1;
+  # this is good because keeps macro re-definitions\
+  # which should be checked up on too
+  FILE_1:
+  for my $m1 (@macros1) {
+    next FILE_1 unless defined $m1;
+    
+    FILE_2:
+    for my $m2 (@macros2) {
+      next FILE_2 unless defined $m2;
+      
+      if ($m1 eq $m2) {
+        $m1 = undef;
+        $m2 = undef;
+        
+        next FILE_2;
+      }
+    }
+  }
 
+  my @diff;
 
-  @macro_names_1 = map {grep !/$file_1{$_}/, values %file_2} sort keys %file_1;
 
   return (sprintf "%40s %40s" x @diff_file_2, @grep_2;
 }
