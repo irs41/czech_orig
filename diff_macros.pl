@@ -59,7 +59,7 @@ sub get_macro_names {
   open my $in, '<:utf8', $file;
   
   my @grep;
-  push @grep, (/^_([^_]+)/ ? $1 : undef) while <$in>;
+  push @grep, (/^_([^_]+)_/ ? $1 : '') while <$in>;
   
   close $in;
 
@@ -79,27 +79,31 @@ sub diff_macro_names {
   my @macros1 = @$_[0];
   my @macros2 = @$_[1];
 
-  # this is good because keeps macro re-definitions\
-  # which should be checked up on too
   FILE_1:
   for my $m1 (@macros1) {
-    next FILE_1 unless defined $m1;
+    next FILE_1 unless $m1;
     
     FILE_2:
     for my $m2 (@macros2) {
-      next FILE_2 unless defined $m2;
+      next FILE_2 unless $m2;
       
       if ($m1 eq $m2) {
-        $m1 = undef;
-        $m2 = undef;
+        $m1 = '';
+        $m2 = '';
         
         next FILE_2;
       }
     }
   }
 
-  my @diff;
+  my @diff = map {
+    my $i = $_ - 1;
+    my $num = $_;
 
+    $l if $_;
 
-  return (sprintf "%40s %40s" x @diff_file_2, @grep_2;
+    sprintf "%s, %${col}s", $_, $macros1[$_] . (' ' x 4) . $macros2[$_] || ''
+  } 1..(@macros1 + abs(@macros1 - @macros2));
+
+  return grep //, @diff;
 }
