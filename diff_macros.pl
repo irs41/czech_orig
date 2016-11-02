@@ -29,14 +29,17 @@ EOL
 exit 2;
 }
 
+
 my $col = 40; # column width
 my $file1 = shift;
 my $file2 = shift;
 
 print
+  # heading
   sprintf(
-    "%s$col || %s$col\n", $file1, $file2
+    "%${col}s || %${col}s\n\n", $file1, $file2
   ),
+  # diff
   diff_macro_names(
     get_macro_names($file1),
     get_macro_names($file2)
@@ -47,7 +50,7 @@ print
 
 =head2 get_macro_names
 
-Take macro names from the given DM file
+Get macro names from the given DM file
 
 =cut
 
@@ -63,7 +66,7 @@ sub get_macro_names {
   
   close $in;
 
-  # matched macro names keeping the lines
+  # matched macro names keeping the lines between
   return \@grep;
 }
 
@@ -91,19 +94,20 @@ sub diff_macro_names {
         $m1 = '';
         $m2 = '';
         
-        next FILE_2;
+        next FILE_1;
       }
     }
   }
 
   my @diff = map {
-    my $i = $_ - 1;
-    my $num = $_;
+    $macros1[$_] ? sprintf "%s: %${col}s", $_, $macros1[$_-1] : ()
+  } 1..@macros1;
 
-    $l if $_;
+  for (1..@diff) {
+    $diff[$_-1] .= "$_: " . $macros2[$_-1] if $macros2[$_];
+  }
 
-    sprintf "%s, %${col}s", $_, $macros1[$_] . (' ' x 4) . $macros2[$_] || ''
-  } 1..(@macros1 + abs(@macros1 - @macros2));
+  #if @diff < @macros2 ...
 
-  return grep //, @diff;
+  return join "\n", grep !/^$/, @diff;
 }
