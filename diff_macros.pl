@@ -100,11 +100,14 @@ sub diff_macro_names {
   }
 
   my @diff = map {
-    $macros1[$_] ? sprintf "%s: %${col}s", $_, $macros1[$_-1] : ()
-  } 1..@macros1;
+    $macros1[$_] ? sprintf "%s: %${col}s", $_+1, $macros1[$_] : ()
+  } 0..$#macros1;
 
-  for (1..@diff) {
-    $diff[$_-1] .= "$_: " . $macros2[$_-1] if $macros2[$_];
+  for (0..$#diff) {
+    $diff[$_-1] .= $_+1.": " . $macros2[$_-1] if $macros2[$_];
+
+    unless defined $macros2[$_] {
+    }
   }
 
   #if @diff < @macros2 ...
