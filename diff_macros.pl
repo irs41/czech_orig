@@ -30,20 +30,20 @@ exit 2;
 }
 
 
-my $col = 40; # column width
+my $col = 60; # column width
 my $file1 = shift;
 my $file2 = shift;
 
 print
   # heading
   sprintf(
-    "%${col}s || %${col}s\n\n", $file1, $file2
+    "%-${col}s%s %s\n\n", $file1, "||", $file2
   ),
   # diff
   diff_macro_names(
     get_macro_names($file1),
     get_macro_names($file2)
-);
+), "\n";
 ### ============ END ================
 
 
@@ -79,8 +79,8 @@ Tell which macro names don't compare
 sub diff_macro_names {
   return -1 unless @_ == 2;
 
-  my @macros1 = @$_[0];
-  my @macros2 = @$_[1];
+  my @macros1 = @{shift @_};
+  my @macros2 = @{shift @_};
 
   FILE_1:
   for my $m1 (@macros1) {
@@ -100,17 +100,21 @@ sub diff_macro_names {
   }
 
   my @diff = map {
-    $macros1[$_] ? sprintf "%s: %${col}s", $_+1, $macros1[$_] : ()
+    $macros1[$_] ? (sprintf "%s: %-${col}s", $_+1, $macros1[$_]) : ''
   } 0..$#macros1;
 
-  for (0..$#diff) {
-    $diff[$_-1] .= $_+1.": " . $macros2[$_-1] if $macros2[$_];
+  # now DEBUGGING line
+  print join "\n\n", @diff;die;
 
-    unless defined $macros2[$_] {
+  for (0..$#macros2) {
+    unless (defined $diff[$_]) {
+      push @diff, $macros2[$_] ? (sprintf "%${col}s%s: %s", '', $_+1, $macros2[$_]) : '';
+
+      next;
     }
+
+    $diff[$_] .= $macros2[$_] ? (($_+1).": " . $macros2[$_]) : '';
   }
 
-  #if @diff < @macros2 ...
-
-  return join "\n", grep !/^$/, @diff;
+  return join "\n\n", grep !/^$/, @diff;
 }
