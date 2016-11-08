@@ -1,14 +1,20 @@
-### To update czech interface of Greenstone2, missing translations, bad spelling and remove outdated macros
+# diff_macros.pl
 
-based on english originals `english_orig.md` and `english2_orig.md` or more up-to-date slovak ones.
+    NAME
+        diff_macros.pl - compare two DM files
 
+    USAGE
+        diff_macros.pl FILE1.dm FILE2.dm
 
-NAME
-    diff_macros.pl - compare two DM files
+    DESCRIPTION
+        Check upon macro names between the two DM files
 
-USAGE
-    diff_macros.pl FILE1.dm FILE2.dm
+To make a comparison of the two Greenstone DM files and their macro definitions.
 
-DESCRIPTION
-    Compare macro names of the two DM files, i.e. outdated macros to be removed and missing ones to be added.
+This version prints a 2-column diff format of unique macro names between the two of files.
 
+It's useful when upgrading your Greenstone interface based on the English original, i.e. to see outdated macros to be removed and missing ones to be added.
+
+__*__
+
+Created in effort to update the Czech interface of Greenstone2, missing translations and bad spelling.
