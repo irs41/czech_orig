@@ -37,7 +37,7 @@ my $file2 = shift;
 print
   # heading
   sprintf(
-    "%-${col}s%s %s\n\n", $file1, "||", $file2
+    "%-${col}s%s\n\n", $file1, $file2
   ),
   # diff
   diff_macro_names(
@@ -100,11 +100,8 @@ sub diff_macro_names {
   }
 
   my @diff = map {
-    $macros1[$_] ? (sprintf "%s: %-${col}s", $_+1, $macros1[$_]) : ''
+    $macros1[$_] ? (sprintf "%-${col}s", ($_+1 . ": " . $macros1[$_])) : ''
   } 0..$#macros1;
-
-  # now DEBUGGING line
-  print join "\n\n", @diff;die;
 
   for (0..$#macros2) {
     unless (defined $diff[$_]) {
@@ -113,7 +110,8 @@ sub diff_macro_names {
       next;
     }
 
-    $diff[$_] .= $macros2[$_] ? (($_+1).": " . $macros2[$_]) : '';
+    $diff[$_] .= (sprintf "%${col}s", '') if ($macros2[$_] and not $diff[$_]);
+    $diff[$_] .= ($_+1 . ": " . $macros2[$_]) if $macros2[$_];
   }
 
   return join "\n\n", grep !/^$/, @diff;
