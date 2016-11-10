@@ -34,10 +34,15 @@ my $col = 60; # column width
 my $file1 = shift;
 my $file2 = shift;
 
+my $modes = {
+  macro_name => \qr|^_([^_]+)_|,
+  macro_name_lang => \qr|^_[^_]+_ \[l=(.{2})\]|,
+};
+
 print
   # heading
   sprintf(
-    "%-${col}s%s\n\n", $file1, $file2
+    "%-${col}s%s\n\n%s\n\n", $file1, $file2, "=" x ($col*2)
   ),
   # diff
   diff_macro_names(
@@ -62,7 +67,7 @@ sub get_macro_names {
   open my $in, '<:utf8', $file;
   
   my @grep;
-  push @grep, (/^_([^_]+)_/ ? $1 : '') while <$in>;
+  push @grep, (${$modes->{macro_name}} ? $1 : '') while <$in>;
   
   close $in;
 
