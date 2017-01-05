@@ -14,7 +14,7 @@ use utf8;
 
 ### ============== MAIN =============
 unless (@ARGV == 2) {
-  #grep /--help|-h|\/\?/, @ARGV
+  # grep /--help|-h|\/\?/, @ARGV
   print <<'EOL';
 NAME
     diff_macros.pl - compare two DM files
@@ -34,9 +34,10 @@ my $col = 60; # column width
 my $file1 = shift;
 my $file2 = shift;
 
-my $modes = {
-  macro_name => \qr|^_([^_]+)_|,
-  macro_name_lang => \qr|^_[^_]+_ \[l=(.{2})\]|,
+# diff options
+my $diff = {
+  macro_name => qr|^_([^_]+)_|,
+  macro_name_lang => qr|^_[^_]+_ \[l=(.{2})\]|,
 };
 
 print
@@ -65,10 +66,11 @@ sub get_macro_names {
     unless -e $file;
 
   open my $in, '<:utf8', $file;
-  
+
   my @grep;
-  push @grep, (${$modes->{macro_name}} ? $1 : '') while <$in>;
-  
+  push @grep, (/$diff->{macro_name}/ ? $1 : '') while <$in>;
+  # push @grep, (/$diff->{macro_name_lang}/ ? $1 : '') while <$in>;
+
   close $in;
 
   # matched macro names keeping the lines between
