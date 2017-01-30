@@ -14,7 +14,8 @@ use utf8;
 
 ### ============== MAIN =============
 unless (@ARGV == 2) {
-  # grep /--help|-h|\/\?/, @ARGV
+  #grep /--help|-h|\/\?/, @ARGV
+
   print <<'EOL';
 NAME
     diff_macros.pl - compare two DM files
@@ -105,6 +106,9 @@ sub diff_macro_names {
       }
     }
   }
+
+
+  my $boundary = (@macros1 < @macros2) ? @macros2 : @macros1;
 
   my @diff = map {
     $macros1[$_] ? (sprintf "%-${col}s", ($_+1 . ": " . $macros1[$_])) : ''
